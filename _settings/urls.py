@@ -18,7 +18,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from mainPage.views import main_page
+
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", admin.site.urls, name='admin_panel'),
+    path("", main_page),
     path('ai-recipes/', include("recipes.urls")),
+    path('shop-chat/', include("shopChat.urls")),
 ]
+
+

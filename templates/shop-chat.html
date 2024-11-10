@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат с магазином</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fafafa;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .user-message {
+            color: blue;
+        }
+        .bot-message {
+            color: green;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        .input-container input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .input-container button {
+            width: 18%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Чат с магазином обуви</h2>
+        <div class="chat-box" id="chat-box">
+            <!-- Messages will appear here -->
+        </div>
+        <div class="input-container">
+            <input type="text" id="user-message" placeholder="Введите сообщение..." />
+            <button onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const userMessage = document.getElementById("user-message").value;
+            if (!userMessage) return;
+
+            // Display user message in the chat box
+            const chatBox = document.getElementById("chat-box");
+            const userMessageElement = document.createElement("div");
+            userMessageElement.classList.add("message", "user-message");
+            userMessageElement.textContent = "Вы: " + userMessage;
+            chatBox.appendChild(userMessageElement);
+
+            // Clear the input field
+            document.getElementById("user-message").value = "";
+
+            // Send the user message to the backend (Django view)
+            fetch("{% url 'shop_chat' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    'user_message': userMessage
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const botMessage = data.answer;
+                const botMessageElement = document.createElement("div");
+                botMessageElement.classList.add("message", "bot-message");
+                botMessageElement.textContent = "Бот: " + botMessage;
+                chatBox.appendChild(botMessageElement);
+
+                // Scroll to the bottom of the chat
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
+
+{% endblock %}

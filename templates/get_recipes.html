@@ -1,3 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
 <form id="recipeForm" method="POST" action="{% url 'get_recipes' %}">
     {% csrf_token %}
     <label for="products">Введите продукты (через запятую):</label>
@@ -24,3 +29,5 @@
         document.getElementById("recipeResult").innerText = data.recipes;
     };
 </script>
+
+{% endblock %}
