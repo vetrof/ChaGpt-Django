@@ -1,0 +1,26 @@
+<form id="recipeForm" method="POST" action="{% url 'get_recipes' %}">
+    {% csrf_token %}
+    <label for="products">Введите продукты (через запятую):</label>
+    <input type="text" id="products" name="products" required>
+    <button type="submit">Получить рецепт</button>
+</form>
+
+<div id="recipeResult"></div>
+
+<script>
+    document.getElementById("recipeForm").onsubmit = async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        const response = await fetch(event.target.action, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+            },
+        });
+
+        const data = await response.json();
+        document.getElementById("recipeResult").innerText = data.recipes;
+    };
+</script>
